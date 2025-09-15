@@ -1,0 +1,76 @@
+:root{
+  --bg: #f6f7fb;
+  --card: #ffffff;
+  --text: #1f2937;
+  --muted: #6b7280;
+  --primary: #4f46e5;
+  --radius: 16px;
+  --shadow: 0 8px 24px rgba(0,0,0,.08);
+  --bubble-user: #f0f4ff;
+  --bubble-assistant: #ffffff;
+  --bubble-system: #eef2f7;
+  --border: 1px solid rgba(0,0,0,.06);
+}
+@media (prefers-color-scheme: dark){
+  :root{
+    --bg:#0b1220; --card:#0f172a; --text:#e5e7eb; --muted:#94a3b8;
+    --primary:#7c83ff; --bubble-user:#111c3a; --bubble-assistant:#0d1427; --bubble-system:#0d162b;
+    --border:1px solid rgba(255,255,255,.06);
+    --shadow: 0 8px 24px rgba(0,0,0,.35);
+  }
+}
+html,body{ height:100%; }
+body{ background: var(--bg); color: var(--text); }
+a{ text-decoration: none; }
+
+.container-narrow{ max-width: 860px; }
+.page-card{
+  background: var(--card); border-radius: var(--radius); box-shadow: var(--shadow);
+  border: var(--border); padding: 18px 18px 6px; margin-bottom: 14px;
+}
+
+#messages{ padding: 4px 6px; }
+.chat-bubble{
+  max-width: 78%;
+  padding: 12px 14px;
+  border-radius: 14px;
+  border: var(--border);
+  background: var(--bubble-assistant);
+  box-shadow: var(--shadow);
+  line-height: 1.5;
+}
+.chat-bubble.user{
+  background: var(--bubble-user);
+  border-radius: 14px 14px 14px 6px;
+}
+.chat-bubble.assistant{
+  background: var(--bubble-assistant);
+  border-radius: 14px 14px 6px 14px;
+}
+.chat-bubble.system{
+  background: var(--bubble-system);
+  font-size: .9rem; color: var(--muted);
+}
+.chat-bubble b{ font-weight: 600; display:inline-block; margin-bottom:6px; }
+
+.me-auto.user{ margin-right: auto; }
+.ms-auto.assistant{ margin-left: auto; }
+
+.chat-input-bar{
+  position: sticky; bottom: 0; padding: 12px 0; background: transparent;
+}
+.chat-input-bar .input-group{
+  background: var(--card); border-radius: 999px; overflow: hidden; border: var(--border);
+  box-shadow: var(--shadow);
+}
+.chat-input-bar input.form-control{
+  border: 0; background: transparent; color: var(--text);
+}
+.chat-input-bar .input-group-text{ border:0; background: transparent; }
+.chat-input-bar .btn-primary{
+  border-radius: 999px; padding-inline: 16px; background: var(--primary); border: none;
+}
+
+.tip-card{ background: var(--card); border-radius: var(--radius); border: var(--border); box-shadow: var(--shadow); }
+.card.shadow-sm{ box-shadow: var(--shadow)!important; border: var(--border); }
+.small-muted{ color: var(--muted); font-size: .9rem; }
