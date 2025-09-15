@@ -47,14 +47,15 @@ def signup(request):
         form = UserCreationForm()
     return render(request, "registration/signup.html", {"form": form})
 
-def ai_reply(user_text: str, history: list[dict]) -> str:
+def ai_reply(user_text: str, history: list[dict], conv_id: int) -> str:
     """
     외부 FastAPI (/chat) 서버 호출해서 AI 응답을 받아오는 함수
     """
     try:
         payload = {
-            "session_id": "django-user",   # 필요에 따라 conv.pk 등 넣어도 됨
-            "message": user_text
+            "session_id": f"conv-{conv_id}",
+            "message": user_text,
+            "history": history
         }
         # FastAPI 서버 주소 확인 (8002로 실행했다면 8002로!)
         res = requests.post("http://13.125.120.235:8080/chat", json=payload, timeout=15)
@@ -91,6 +92,8 @@ def chat_room(request, pk: int):
 
 @login_required
 @require_POST
+@login_required
+@require_POST
 def api_send_message(request):
     conv_id = request.POST.get("conversation_id")
     text = request.POST.get("text", "").strip()
@@ -103,10 +106,14 @@ def api_send_message(request):
     Message.objects.create(conversation=conv, role="user", content=text)
 
     # 2) 히스토리 구성
-    history = [{"role": m.role, "content": m.content} for m in conv.messages.order_by("created_at")[:50]]
+    history = [
+        {"role": m.role, "content": m.content}
+        for m in conv.messages.order_by("created_at")
+    ]
+    history.append({"role": "user", "content": text})
 
-    # 3) AI 응답
-    assistant_text = ai_reply(text, history)
+    # 3) AI 응답 (conv.id 전달!)
+    assistant_text = ai_reply(text, history, conv.id)
 
     # 4) 어시스턴트 메시지 저장
     Message.objects.create(conversation=conv, role="assistant", content=assistant_text)
@@ -119,13 +126,10 @@ def api_send_message(request):
     return JsonResponse({
         "ok": True,
         "assistant": assistant_text,
-        # (선택) 이미지 검색 결과를 내려주고 싶으면 여기에 추가
-        # "images": ["https://...", "https://...", "https://..."]
     })
 
 # --- 로그아웃(POST 전용) ---
 @require_POST
 def force_logout(request):
     logout(request)
-    print()
     return redirect("login")
