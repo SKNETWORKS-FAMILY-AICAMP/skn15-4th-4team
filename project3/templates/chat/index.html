@@ -5,7 +5,10 @@
   <h2>{{ request.user.username }}님의 대화</h2>
   <p>
     <a href="{% url 'chat:new' %}">+ 새 대화</a> |
-    <a href="{% url 'logout' %}">로그아웃</a>
+    <form action="{% url 'chat:logout' %}" method="post" style="display:inline;">
+      {% csrf_token %}
+      <button type="submit" class="btn btn-link p-0 align-baseline">로그아웃</button>
+    </form>
   </p>
   <ul>
     {% for c in conversations %}

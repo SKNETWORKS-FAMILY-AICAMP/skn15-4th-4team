@@ -9,13 +9,17 @@
     <div class="d-flex align-items-center gap-2">
       <a href="{% url 'chat:index' %}" class="btn btn-link p-0"><i class="bi bi-arrow-left"></i> 목록</a>
       <div class="ms-auto d-flex align-items-center gap-2">
-        <a href="{% url 'logout' %}" class="btn btn-outline-secondary btn-sm">로그아웃</a>
+        <!-- 로그아웃: POST 전용 -->
+        <form action="{% url 'chat:logout' %}" method="post" class="d-inline m-0">
+          {% csrf_token %}
+          <button type="submit" class="btn btn-outline-secondary btn-sm">로그아웃</button>
+        </form>
       </div>
     </div>
   </div>
 
-  <div class="col-12">
-    <div class="card border-warning-subtle bg-warning-subtle">
+  <!-- <div class="col-12"> -->
+    <!-- <div class="card border-warning-subtle bg-warning-subtle">
       <div class="card-body">
         <div class="fw-semibold mb-1">❓ 질문: {{ conv.title|default:"(대화)" }}</div>
         <div class="small text-body">
@@ -25,7 +29,7 @@
     </div>
   </div>
 
-  <!-- 경고/알림 카드 3개 (스크린샷 느낌) -->
+  경고/알림 카드 3개 (스크린샷 느낌)
   <div class="col-md-4">
     <div class="card tip-card">
       <div class="card-body small">
@@ -46,13 +50,12 @@
         Please utilize the new parameter in future releases.
       </div>
     </div>
-  </div>
-</div>
+  </div> -->
+<!-- </div> -->
 
 <!-- 이미지 갤러리 (3열) -->
-<div class="row g-3 mb-3" id="imageGrid">
-  <!-- 예시 썸네일 3개 (필요 시 서버 응답에 맞춰 동적 추가) -->
-  <div class="col-md-4">
+<!-- <div class="row g-3 mb-3" id="imageGrid"> -->
+  <!-- <div class="col-md-4">
     <div class="card shadow-sm">
       <img src="https://placekitten.com/640/360" class="card-img-top" alt="img1">
     </div>
@@ -67,7 +70,7 @@
       <img src="https://placekitten.com/642/360" class="card-img-top" alt="img3">
     </div>
   </div>
-</div>
+</div> -->
 
 <!-- 실제 채팅 메시지 -->
 <div class="vstack gap-2 mb-5" id="messages">
@@ -96,6 +99,13 @@
 
 {% block script %}
 <script>
+  // --- CSRF 토큰: 쿠키에서 읽어오기 (fetch용)
+  function getCookie(name) {
+    const v = document.cookie.match('(^|;)\\s*' + name + '\\s*=\\s*([^;]+)');
+    return v ? v.pop() : '';
+  }
+  const CSRF = getCookie('csrftoken');
+
   // 사이드바 옵션 → 메타 객체로 만들기 (필요 시 서버로 같이 보냄)
   function collectMeta() {
     return {
@@ -130,7 +140,7 @@
 
     const res = await fetch("{% url 'chat:api_send' %}", {
       method: "POST",
-      headers: {"X-CSRFToken": "{{ csrf_token }}"},
+      headers: {"X-CSRFToken": CSRF},
       body: fd
     });
 
@@ -140,7 +150,6 @@
         `<div class="chat-bubble ms-auto assistant"><b>봇</b><br>${(data.assistant || '').replaceAll("\n","<br>")}</div>`
       );
       window.scrollTo({top: document.body.scrollHeight, behavior: "smooth"});
-      // 만약 응답에 이미지 URL 배열이 있다면 갤러리에 뿌리는 예시:
       if (Array.isArray(data.images)) {
         const grid = document.getElementById('imageGrid');
         grid.innerHTML = data.images.map((src) => (
