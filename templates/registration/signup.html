@@ -1,13 +1,87 @@
 <!doctype html>
 <html lang="ko">
-<head><meta charset="utf-8"><title>회원가입</title></head>
+<head>
+  <meta charset="utf-8">
+  <title>회원가입</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  <style>
+    html, body { height:100%; }
+    body {
+      margin:0;
+      background:#f6f7fb;
+      font-family:system-ui,-apple-system,Segoe UI,Roboto,"Noto Sans KR",sans-serif;
+      color:#1f2937;
+    }
+    .page-center {
+      min-height:100vh;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:24px;
+    }
+    .signup-card {
+      width:min(460px, 92vw);
+      background:#fff;
+      border-radius:16px;
+      border:1px solid rgba(0,0,0,.06);
+      box-shadow:0 10px 30px rgba(0,0,0,.08);
+      padding:28px;
+    }
+    .signup-card h2 {
+      margin:0 0 18px;
+      font-size:1.4rem;
+    }
+    .errorlist { color:#dc2626; margin-bottom:10px; }
+    .row { margin-bottom:14px; }
+    label { display:block; margin-bottom:6px; font-size:.95rem; }
+    input[type="text"], input[type="password"], input[type="email"] {
+      width:100%;
+      padding:10px 12px;
+      border:1px solid #d1d5db;
+      border-radius:10px;
+      outline:none;
+      background:#fff;
+    }
+    input:focus {
+      border-color:#4f46e5;
+      box-shadow:0 0 0 3px rgba(79,70,229,.15);
+    }
+    button {
+      width:100%;
+      padding:10px 14px;
+      border:0;
+      border-radius:10px;
+      background:#4f46e5;
+      color:#fff;
+      font-weight:600;
+      cursor:pointer;
+    }
+    .links {
+      margin-top:12px;
+      font-size:.9rem;
+      text-align:center;
+    }
+    .links a {
+      color:#4f46e5;
+      text-decoration:none;
+    }
+  </style>
+</head>
+
 <body>
-  <h2>회원가입</h2>
-  <form method="post">
-    {% csrf_token %}
-    {{ form.as_p }}
-    <button type="submit">가입하기</button>
-  </form>
-  <p>이미 계정이 있나요? <a href="{% url 'login' %}">로그인</a></p>
+  <div class="page-center">
+    <div class="signup-card">
+      <h2>회원가입</h2>
+      <form method="post">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit">가입하기</button>
+      </form>
+      <div class="links">
+        이미 계정이 있나요? <a href="{% url 'login' %}">로그인</a>
+      </div>
+    </div>
+  </div>
 </body>
 </html>
