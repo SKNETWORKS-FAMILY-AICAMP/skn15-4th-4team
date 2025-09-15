@@ -1,0 +1,5 @@
+Django==5.2.6
+requests>=2.31,<3
+pydantic>=2.7,<3
+mcp>=0.1.0           # from mcp.server.fastmcp import FastMCP 사용 시
+mysqlclient>=2.2     # settings에서 MySQL(ENGINE=django.db.backends.mysql) 사용 중이면 필수
