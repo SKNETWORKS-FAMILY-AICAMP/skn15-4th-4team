@@ -10,5 +10,6 @@ urlpatterns = [
     path("api/send/", views.api_send_message, name="api_send"),
     path("logout/", views.force_logout, name="logout"),
     path("accounts/signup/", views.signup, name="signup"),  # ← 추가
+    
 ]
 

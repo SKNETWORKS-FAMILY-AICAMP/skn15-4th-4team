@@ -10,6 +10,30 @@ from django.views.decorators.http import require_http_methods
 from django.db import connection
 import requests
 
+@login_required
+@require_POST
+def api_upload_file(request):
+    """
+    파일 업로드 → FastAPI /upload-doc 호출 → 결과 반환
+    """
+    file = request.FILES.get("file")
+    if not file:
+        return JsonResponse({"ok": False, "error": "파일이 필요합니다."}, status=400)
+
+    session_id = request.POST.get("session_id", f"user-{request.user.id}")
+
+    # FastAPI로 파일 업로드 전달
+    files = {"file": file}
+    data = {"session_id": session_id}
+
+    try:
+        res = requests.post("http://13.125.120.235:8080/upload-doc", files=files, data=data, timeout=30)
+        if res.status_code == 200:
+            return JsonResponse({"ok": True, "result": res.json()})
+        else:
+            return JsonResponse({"ok": False, "error": f"AI 서버 오류: {res.status_code}"})
+    except Exception as e:
+        return JsonResponse({"ok": False, "error": str(e)})
 
 @require_http_methods(["GET", "POST"])
 def signup(request):
@@ -42,7 +66,7 @@ def ai_reply(user_text: str, history: list[dict]) -> str:
         if res.status_code == 200:
             data = res.json()
             # FastAPI는 {"ai_answer": "...", "route": "..."} 형식 반환
-            return data.get("ai_answer", "(AI 응답 없음)")
+            return data.get("ai_answer", "(AI 응답 없음)")[:]
         else:
             return f"(AI 서버 오류: {res.status_code})"
 
@@ -103,4 +127,5 @@ def api_send_message(request):
 @require_POST
 def force_logout(request):
     logout(request)
+    print()
     return redirect("login")
