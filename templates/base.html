@@ -48,19 +48,30 @@
               - c.title|default:"(제목 없음)" : 제목이 비어있으면 대체문구 노출
               - { % url 'chat:room' pk=c.pk % } : 대화방 상세 페이지로 이동 -->
       <ul class="list-unstyled vstack gap-2">
-        {% for c in conversations %}
-          <li>
-            <a class="link-body-emphasis text-decoration-none" href="{% url 'chat:room' pk=c.pk %}">
-              {{ c.title|default:"(제목 없음)" }}
-            </a>
-            <div class="small text-muted">
-              {{ c.updated_at|date:"Y-m-d H:i" }}
-            </div>
-          </li>
-        {% empty %}
-          <li class="text-muted">아직 대화가 없습니다. 새 대화를 시작해보세요.</li>
-        {% endfor %}
+        {% if request.user.is_authenticated %}
+          <!-- [변경] 로그인한 사용자로 강제 스코프 다운: 
+               이 블록 내부에서는 conversations를 request.user.conversations.all 로 덮어써 
+               "계정 ID 기반" 목록만 보이게 함. Conversation.Meta.ordering으로 최신순 정렬 유지 -->
+          {% with conversations=request.user.conversations.all %}
+            {% for c in conversations %}
+              <li>
+                <a class="link-body-emphasis text-decoration-none" href="{% url 'chat:room' pk=c.pk %}">
+                  {{ c.title|default:"(제목 없음)" }}
+                </a>
+                <div class="small text-muted">
+                  {{ c.updated_at|date:"Y-m-d H:i" }}
+                </div>
+              </li>
+            {% empty %}
+              <li class="text-muted">아직 대화가 없습니다. 새 대화를 시작해보세요.</li>
+            {% endfor %}
+          {% endwith %}
+        {% else %}
+          <!-- [추가] 비로그인 상태 안내 -->
+          <li class="text-muted">로그인 후 대화를 볼 수 있습니다.</li>
+        {% endif %}
       </ul>
+
 
       <!-- (선택 안내) 이 아래로 기존 스위치/설정·로그아웃 등은 요청에 따라 제거했습니다 -->
     </aside>
