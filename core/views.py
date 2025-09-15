@@ -8,6 +8,7 @@ from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import login
 from django.views.decorators.http import require_http_methods
 from django.db import connection
+import requests
 
 
 @require_http_methods(["GET", "POST"])
@@ -22,9 +23,32 @@ def signup(request):
         form = UserCreationForm()
     return render(request, "registration/signup.html", {"form": form})
 
-# --- (임시) OpenAI 호출 대체 함수 ---
 def ai_reply(user_text: str, history: list[dict]) -> str:
-    return f"Anki 카드 형식 초안:\n- Q: {user_text}\n- A: (여기에 답을 생성해서 채워주세요)"
+    """
+    외부 FastAPI (/chat) 서버 호출해서 AI 응답을 받아오는 함수
+    """
+    try:
+        payload = {
+            "session_id": "django-user",   # 필요에 따라 conv.pk 등 넣어도 됨
+            "message": user_text
+        }
+        # FastAPI 서버 주소 확인 (8002로 실행했다면 8002로!)
+        res = requests.post("http://13.125.120.235:8080/chat", json=payload, timeout=15)
+
+        # 응답 디버깅 (로그로 찍어서 확인)
+        print("응답 상태코드:", res.status_code)
+        print("응답 내용:", res.text)
+
+        if res.status_code == 200:
+            data = res.json()
+            # FastAPI는 {"ai_answer": "...", "route": "..."} 형식 반환
+            return data.get("ai_answer", "(AI 응답 없음)")
+        else:
+            return f"(AI 서버 오류: {res.status_code})"
+
+    except Exception as e:
+        return f"(AI 서버 연결 실패: {e})"
+
 
 @login_required
 def chat_index(request):
