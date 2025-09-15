@@ -7,6 +7,8 @@ from .models import Conversation, Message
 from django.contrib.auth.forms import UserCreationForm
 from django.contrib.auth import login
 from django.views.decorators.http import require_http_methods
+from django.db import connection
+
 
 @require_http_methods(["GET", "POST"])
 def signup(request):

@@ -16,51 +16,53 @@
   <div class="row">
     <!-- Sidebar -->
     <aside class="col-12 col-md-3 col-lg-2 border-end min-vh-100 p-3 bg-body-tertiary sticky-top">
-      <div class="d-flex align-items-center gap-2 mb-3">
+
+      <!-- [A] 사이드바 헤더: '옵션' 타이틀과 로그인 사용자명 표시 -->
+      <!--  - {{ request.user.username }}: 로그인된 사용자 이름을 컨텍스트 없이도 템플릿에서 접근 가능 -->
+      <div class="d-flex align-items-center gap-2 mb-2">
         <i class="bi bi-robot fs-4"></i>
         <strong>옵션</strong>
       </div>
-
-      <div class="form-check form-switch mb-2">
-        <input class="form-check-input" type="checkbox" id="rememberHistory" checked>
-        <label class="form-check-label" for="rememberHistory">이전 대화 기억 사용</label>
-      </div>
-      <div class="form-check form-switch mb-3">
-        <input class="form-check-input" type="checkbox" id="autoTopic">
-        <label class="form-check-label" for="autoTopic">자동 주제 전환 감지</label>
+      <div class="mb-2">
+        <h5 class="m-0">{{ request.user.username }}님의 대화</h5>
       </div>
 
-      <label class="form-label">주제 관련 임계값(휴리스틱)</label>
-      <input type="range" class="form-range mb-3" min="0" max="1" step="0.01" value="0.72" id="topicThreshold">
-
-      <div class="form-check mb-2">
-        <input class="form-check-input" type="checkbox" id="showToken" checked>
-        <label class="form-check-label" for="showToken">토큰 대시보드 표시</label>
-      </div>
-      <div class="form-check mb-3">
-        <input class="form-check-input" type="checkbox" id="showLatency">
-        <label class="form-check-label" for="showLatency">지연 대시보드 표시</label>
+      <!-- [B] 새 채팅 버튼 -->
+      <!--  - { % url 'chat:new' % } → urls.py의 name="new"로 라우팅
+            - 일반적으로 new_conversation 뷰에서 새 Conversation 생성 후 해당 방으로 리다이렉트 -->
+      <div class="d-grid my-3">
+        <a href="{% url 'chat:new' %}" class="btn btn-primary btn-sm">
+          <i class="bi bi-plus-lg"></i> 새 채팅
+        </a>
       </div>
 
-      <div class="vstack gap-2">
-        <button class="btn btn-outline-secondary btn-sm" id="btnSync">메모리 ↔︎ 동기화</button>
-        <button class="btn btn-outline-secondary btn-sm" id="btnExport">화면 채팅 로그 지우기</button>
-      </div>
+      <hr class="my-3">
 
-      <hr>
+      <!-- [C] 현재 로그인 사용자의 대화 목록 -->
+      <!--  데이터 흐름(중요 설명):
+           1) views.py (예: chat_index)에서 DB 조회
+              convs = Conversation.objects.filter(user=request.user).order_by('-updated_at')
+           2) render 시 컨텍스트에 넣어 전달
+              return render(request, "chat/index.html", {"conversations": convs})
+           3) 템플릿에서 for 루프로 표시
+              - c.title|default:"(제목 없음)" : 제목이 비어있으면 대체문구 노출
+              - { % url 'chat:room' pk=c.pk % } : 대화방 상세 페이지로 이동 -->
+      <ul class="list-unstyled vstack gap-2">
+        {% for c in conversations %}
+          <li>
+            <a class="link-body-emphasis text-decoration-none" href="{% url 'chat:room' pk=c.pk %}">
+              {{ c.title|default:"(제목 없음)" }}
+            </a>
+            <div class="small text-muted">
+              {{ c.updated_at|date:"Y-m-d H:i" }}
+            </div>
+          </li>
+        {% empty %}
+          <li class="text-muted">아직 대화가 없습니다. 새 대화를 시작해보세요.</li>
+        {% endfor %}
+      </ul>
 
-      <h6 class="text-uppercase text-muted">응답 모드</h6>
-      <select class="form-select form-select-sm mb-3" id="modeSelect">
-        <option>일반 대화</option>
-        <option>요약 모드</option>
-        <option>코드 도움</option>
-      </select>
-
-      <h6 class="text-uppercase text-muted">웹 검색 설정</h6>
-      <label class="form-label">문서 검색 개수(k)</label>
-      <input type="range" class="form-range mb-3" min="1" max="10" value="3" id="docTopK">
-
-      <div class="small text-muted">※ 사이드바 값은 요청 시 메타로 같이 전송됩니다.</div>
+      <!-- (선택 안내) 이 아래로 기존 스위치/설정·로그아웃 등은 요청에 따라 제거했습니다 -->
     </aside>
 
     <!-- Main -->
