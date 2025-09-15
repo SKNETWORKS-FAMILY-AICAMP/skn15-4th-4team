@@ -47,12 +47,24 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "config.wsgi.application"
 
+# DATABASES = {
+#     "default": {
+#         "ENGINE": "django.db.backends.sqlite3",
+#         "NAME": BASE_DIR / "db.sqlite3",
+#     }
+# }
+
 DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
+    'default': {
+        'ENGINE': 'django.db.backends.mysql',
+        'NAME': "django",
+        'USER': 'play',
+        'PASSWORD' : '13.124.193.173',
+        'HOST' : 'dbserver',
+        'PORT' : 3306
     }
 }
+
 
 AUTH_PASSWORD_VALIDATORS = [
     {"NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator"},
