@@ -14,8 +14,9 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
-    "core",  # ← 추가
-]
+    "core",
+    "note",
+    ]
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
@@ -89,3 +90,5 @@ LOGOUT_REDIRECT_URL = "login"
 
 # (선택) 이메일 설정: 비번재설정/인증을 나중에 붙일 때 사용
 EMAIL_BACKEND = "django.core.mail.backends.console.EmailBackend"  # 개발용 콘솔 출력
+
+NOTE_MESSAGE_MODEL = "core.Message"

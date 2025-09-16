@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+{% block title %}{% if scope == "mine" %}내 Q&A{% else %}Q&A 보드{% endif %}{% endblock %}
+
+{% block content %}
+<div class="container-fluid py-3">
+  <div class="d-flex align-items-center gap-2 mb-3">
+    <i class="bi bi-journal-text"></i>
+    <h3 class="m-0">
+      {% if scope == "mine" %}내 Q&A{% else %}Q&A 보드{% endif %}
+    </h3>
+    {% if scope == "mine" %}
+      <span class="badge text-bg-secondary">내 계정 전체</span>
+    {% elif conv %}
+      <span class="badge text-bg-secondary">대화 #{{ conv }}</span>
+    {% endif %}
+  </div>
+
+  <form method="get" class="row g-2 mb-3">
+    <div class="col-12 col-md-4">
+      <input type="text" name="q" value="{{ q }}" class="form-control" placeholder="키워드 (질문/답변 본문)" />
+    </div>
+    <div class="col-6 col-md-2">
+      <input type="text" name="conv" value="{{ conv }}" class="form-control" placeholder="대화 ID" />
+    </div>
+    <div class="col-6 col-md-2">
+      <input type="date" name="from" value="{{ date_from }}" class="form-control" />
+    </div>
+    <div class="col-6 col-md-2">
+      <input type="date" name="to" value="{{ date_to }}" class="form-control" />
+    </div>
+    <div class="col-6 col-md-2 d-grid">
+      <button class="btn btn-primary" type="submit"><i class="bi bi-search"></i> 검색</button>
+    </div>
+  </form>
+
+  {% if qa_list %}
+    <div class="vstack gap-3">
+      {% for qa in page_obj.object_list %}
+        {% include "note/_qa_item.html" with qa=qa %}
+      {% endfor %}
+    </div>
+
+    <nav class="mt-4" aria-label="Page navigation">
+      <ul class="pagination pagination-sm">
+        {% if page_obj.has_previous %}
+          <li class="page-item"><a class="page-link" href="?q={{ q }}&conv={{ conv }}&from={{ date_from }}&to={{ date_to }}&page={{ page_obj.previous_page_number }}">이전</a></li>
+        {% else %}
+          <li class="page-item disabled"><span class="page-link">이전</span></li>
+        {% endif %}
+
+        <li class="page-item disabled"><span class="page-link">{{ page_obj.number }} / {{ page_obj.paginator.num_pages }}</span></li>
+
+        {% if page_obj.has_next %}
+          <li class="page-item"><a class="page-link" href="?q={{ q }}&conv={{ conv }}&from={{ date_from }}&to={{ date_to }}&page={{ page_obj.next_page_number }}">다음</a></li>
+        {% else %}
+          <li class="page-item disabled"><span class="page-link">다음</span></li>
+        {% endif %}
+      </ul>
+    </nav>
+  {% else %}
+    <div class="alert alert-secondary">표시할 Q&A가 없습니다.</div>
+  {% endif %}
+</div>
+{% endblock %}
