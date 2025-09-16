@@ -3,8 +3,11 @@
 
 {% block content %}
 
-<!-- 상단 영역 -->
-<div class="row g-3 mb-3">
+<!-- 네비바 토글 버튼 -->
+<button id="navToggle" class="btn btn-outline-dark btn-sm">네비바 토글</button>
+
+<!-- 네비바 영역 -->
+<div id="navBar" class="row g-3 mb-3">
   <div class="col-12">
     <div class="d-flex align-items-center gap-2">
       <a href="{% url 'chat:new' %}" class="btn btn-primary btn-sm">
@@ -12,9 +15,7 @@
       </a>
       <a href="{% url 'chat:index' %}" class="btn btn-link p-0"><i class="bi bi-arrow-left"></i> 목록</a>
       <div class="ms-auto d-flex align-items-center gap-2">
-        <!-- 업로드 확인 버튼 -->
         <button id="checkBtn" class="btn btn-outline-success btn-sm">업로드 확인</button>
-        <!-- 로그아웃 -->
         <form action="{% url 'chat:logout' %}" method="post" class="d-inline m-0">
           {% csrf_token %}
           <button type="submit" class="btn btn-outline-secondary btn-sm">로그아웃</button>
@@ -23,6 +24,7 @@
     </div>
   </div>
 </div>
+
 
 <!-- 메시지 영역 -->
 <div class="vstack gap-2 mb-5" id="messages">
@@ -67,6 +69,7 @@
 {% endblock %}
 
 {% block script %}
+
 <style>
   .chat-footer {
     position: fixed;
@@ -152,13 +155,13 @@
 
       // 대화창에 업로드 사실 기록
       if (data.ok) {
+        const filename = fileInput.files[0].name;
+        document.getElementById("uploadResult").innerText = `'${filename}' 업로드`;
         box.insertAdjacentHTML("beforeend",
-          `<div class="chat-bubble system small">📁 '${fileInput.files[0].name}' 파일을 업로드했습니다.</div>`
+          `<div class="chat-bubble system small">📁 '${filename}' 업로드</div>`
         );
       } else {
-        box.insertAdjacentHTML("beforeend",
-          `<div class="chat-bubble system small">⚠️ 파일 업로드 실패: ${data.error}</div>`
-        );
+        document.getElementById("uploadResult").innerText = "⚠️ 업로드 실패";
       }
       window.scrollTo({top: document.body.scrollHeight, behavior: "smooth"});
     } catch (err) {
@@ -170,5 +173,10 @@
   document.getElementById("checkBtn").addEventListener("click", () => {
     alert("업로드 결과는 입력창 아래에 표시됩니다!");
   });
+
+  document.getElementById("navToggle").addEventListener("click", () => {
+  const nav = document.getElementById("navBar");
+  nav.style.display = (nav.style.display === "none") ? "block" : "none";
+});
 </script>
 {% endblock %}
