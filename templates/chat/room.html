@@ -12,6 +12,8 @@
       </a>
       <a href="{% url 'chat:index' %}" class="btn btn-link p-0"><i class="bi bi-arrow-left"></i> 목록</a>
       <div class="ms-auto d-flex align-items-center gap-2">
+        <!-- ✅ 업로드 확인 버튼 (오른쪽 상단) -->
+        <button id="checkBtn" class="btn btn-outline-success btn-sm">업로드 확인</button>
         <!-- 로그아웃: POST 전용 -->
         <form action="{% url 'chat:logout' %}" method="post" class="d-inline m-0">
           {% csrf_token %}
@@ -20,60 +22,7 @@
       </div>
     </div>
   </div>
-
-  <!-- <div class="col-12"> -->
-    <!-- <div class="card border-warning-subtle bg-warning-subtle">
-      <div class="card-body">
-        <div class="fw-semibold mb-1">❓ 질문: {{ conv.title|default:"(대화)" }}</div>
-        <div class="small text-body">
-          현재 웹 검색/이미지 검색 등은 옵션에 따라 달라져요. 더 구체적인 요청일수록 정확도가 올라갑니다.
-        </div>
-      </div>
-    </div>
-  </div>
-
-  경고/알림 카드 3개 (스크린샷 느낌)
-  <div class="col-md-4">
-    <div class="card tip-card">
-      <div class="card-body small">
-        The <code>use_column_width</code> parameter has been deprecated…
-      </div>
-    </div>
-  </div>
-  <div class="col-md-4">
-    <div class="card tip-card">
-      <div class="card-body small">
-        The <code>use_container_width</code> parameter instead.
-      </div>
-    </div>
-  </div>
-  <div class="col-md-4">
-    <div class="card tip-card">
-      <div class="card-body small">
-        Please utilize the new parameter in future releases.
-      </div>
-    </div>
-  </div> -->
-<!-- </div> -->
-
-<!-- 이미지 갤러리 (3열) -->
-<!-- <div class="row g-3 mb-3" id="imageGrid"> -->
-  <!-- <div class="col-md-4">
-    <div class="card shadow-sm">
-      <img src="https://placekitten.com/640/360" class="card-img-top" alt="img1">
-    </div>
-  </div>
-  <div class="col-md-4">
-    <div class="card shadow-sm">
-      <img src="https://placekitten.com/641/360" class="card-img-top" alt="img2">
-    </div>
-  </div>
-  <div class="col-md-4">
-    <div class="card shadow-sm">
-      <img src="https://placekitten.com/642/360" class="card-img-top" alt="img3">
-    </div>
-  </div>
-</div> -->
+</div>
 
 <!-- 실제 채팅 메시지 -->
 <div class="vstack gap-2 mb-5" id="messages">
@@ -89,7 +38,7 @@
 </div>
 
 <!-- 하단 입력 바 -->
-<form id="send-form" class="chat-input-bar">
+<form id="send-form" class="chat-input-bar mb-2">
   <input type="hidden" name="conversation_id" value="{{ conv.id }}">
   <div class="input-group shadow">
     <span class="input-group-text bg-body"><i class="bi bi-chat-right-dots"></i></span>
@@ -98,48 +47,42 @@
   </div>
 </form>
 
+<!-- ✅ 채팅 입력바 아래에 파일 업로드 -->
+<form id="upload-form" enctype="multipart/form-data" class="d-flex align-items-center gap-2">
+  {% csrf_token %}
+  <input type="file" id="fileInput" name="file" class="form-control form-control-sm" style="max-width:300px;">
+  <button type="button" id="uploadBtn" class="btn btn-outline-primary btn-sm">
+    <i class="bi bi-upload"></i> 업로드
+  </button>
+</form>
+
+<div id="uploadResult" class="small text-muted mt-2"></div>
+
 {% endblock %}
 
 {% block script %}
 <script>
-  // --- CSRF 토큰: 쿠키에서 읽어오기 (fetch용)
+  // --- CSRF 토큰 가져오기
   function getCookie(name) {
     const v = document.cookie.match('(^|;)\\s*' + name + '\\s*=\\s*([^;]+)');
     return v ? v.pop() : '';
   }
   const CSRF = getCookie('csrftoken');
 
-  // 사이드바 옵션 → 메타 객체로 만들기 (필요 시 서버로 같이 보냄)
-  function collectMeta() {
-    return {
-      rememberHistory: document.getElementById('rememberHistory')?.checked,
-      autoTopic: document.getElementById('autoTopic')?.checked,
-      topicThreshold: Number(document.getElementById('topicThreshold')?.value || 0.72),
-      showToken: document.getElementById('showToken')?.checked,
-      showLatency: document.getElementById('showLatency')?.checked,
-      mode: document.getElementById('modeSelect')?.value,
-      docTopK: Number(document.getElementById('docTopK')?.value || 3),
-    };
-  }
-
+  // --- 채팅 전송 처리 (기존 코드 그대로)
   const form = document.getElementById('send-form');
   const box = document.getElementById('messages');
-
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
     const fd = new FormData(form);
     const userText = (fd.get('text') || '').toString().trim();
     if (!userText) return;
 
-    // 화면에 사용자 말풍선 먼저 추가
     box.insertAdjacentHTML('beforeend',
       `<div class="chat-bubble me-auto user"><b>나</b><br>${userText.replaceAll("\n","<br>")}</div>`
     );
     form.reset();
     window.scrollTo({top: document.body.scrollHeight, behavior: "smooth"});
-
-    // 메타를 함께 보낼 경우(선택): JSON 문자열로 추가
-    fd.append('meta', JSON.stringify(collectMeta()));
 
     const res = await fetch("{% url 'chat:api_send' %}", {
       method: "POST",
@@ -153,15 +96,53 @@
         `<div class="chat-bubble ms-auto assistant"><b>봇</b><br>${(data.assistant || '').replaceAll("\n","<br>")}</div>`
       );
       window.scrollTo({top: document.body.scrollHeight, behavior: "smooth"});
-      if (Array.isArray(data.images)) {
-        const grid = document.getElementById('imageGrid');
-        grid.innerHTML = data.images.map((src) => (
-          `<div class="col-md-4"><div class="card shadow-sm"><img src="${src}" class="card-img-top"></div></div>`
-        )).join("");
-      }
     } else {
       alert(data.error || "에러");
     }
+  });
+
+  // --- 파일 업로드 처리
+  document.getElementById("uploadBtn").addEventListener("click", async () => {
+    const fileInput = document.getElementById("fileInput");
+    if (!fileInput.files.length) {
+      alert("파일을 선택하세요!");
+      return;
+    }
+      const fd = new FormData();
+      fd.append("file", fileInput.files[0]);
+      fd.append("session_id", "user-{{ request.user.id }}");
+      fd.append("conversation_id", "{{ conv.id }}");   // ✅ 이 줄 추가
+
+    try {
+      const res = await fetch("/upload-file/", {
+        method: "POST",
+        headers: {"X-CSRFToken": CSRF},
+        body: fd
+      });
+      const data = await res.json();
+      document.getElementById("uploadResult").innerText = JSON.stringify(data, null, 2);
+
+      // ✅ 대화창(messages)에도 업로드 사실 기록
+      const box = document.getElementById("messages");
+      if (data.ok) {
+        box.insertAdjacentHTML("beforeend",
+          `<div class="chat-bubble system small">📁 '${fileInput.files[0].name}' 파일을 업로드했습니다.</div>`
+        );
+      } else {
+        box.insertAdjacentHTML("beforeend",
+          `<div class="chat-bubble system small">⚠️ 파일 업로드 실패: ${data.error}</div>`
+        );
+      }
+      window.scrollTo({top: document.body.scrollHeight, behavior: "smooth"});
+
+    } catch (err) {
+      document.getElementById("uploadResult").innerText = "에러 발생: " + err;
+    }
+  });
+
+  // --- 업로드 확인 버튼
+  document.getElementById("checkBtn").addEventListener("click", () => {
+    alert("업로드 결과는 입력창 아래에 표시됩니다!");
   });
 </script>
 {% endblock %}

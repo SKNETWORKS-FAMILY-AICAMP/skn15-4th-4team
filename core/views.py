@@ -20,7 +20,15 @@ def api_upload_file(request):
     if not file:
         return JsonResponse({"ok": False, "error": "파일이 필요합니다."}, status=400)
 
-    session_id = request.POST.get("session_id", f"user-{request.user.id}")
+    # ✅ 세션 ID를 사용자별로 통일 (conversation_id와 무관하게)
+    session_id = f"user-{request.user.id}"
+    
+    # 또는 conversation_id가 있다면 그것을 우선 사용
+    conversation_id = request.POST.get("conversation_id")
+    if conversation_id:
+        session_id = f"conv-{conversation_id}"
+
+    print(f"📁 파일 업로드 - 세션 ID: {session_id}")  # 디버깅
 
     # FastAPI로 파일 업로드 전달
     files = {"file": file}
@@ -47,16 +55,22 @@ def signup(request):
         form = UserCreationForm()
     return render(request, "registration/signup.html", {"form": form})
 
-def ai_reply(user_text: str, history: list[dict], conv_id: int) -> str:
+def ai_reply(user_text: str, history: list[dict], conv_id: int, user_id: int) -> str:  # ✅ user_id 추가
     """
     외부 FastAPI (/chat) 서버 호출해서 AI 응답을 받아오는 함수
     """
     try:
+        # ✅ 세션 ID를 사용자별로 통일
+        session_id = f"user-{user_id}"  # conversation별이 아닌 user별로 변경
+        
         payload = {
-            "session_id": f"conv-{conv_id}",
+            "session_id": session_id,
             "message": user_text,
             "history": history
         }
+        
+        print(f"🤖 AI 요청 - 세션 ID: {session_id}")  # 디버깅
+        
         # FastAPI 서버 주소 확인 (8002로 실행했다면 8002로!)
         res = requests.post("http://13.125.120.235:8080/chat", json=payload, timeout=15)
 
@@ -92,8 +106,6 @@ def chat_room(request, pk: int):
 
 @login_required
 @require_POST
-@login_required
-@require_POST
 def api_send_message(request):
     conv_id = request.POST.get("conversation_id")
     text = request.POST.get("text", "").strip()
@@ -112,8 +124,8 @@ def api_send_message(request):
     ]
     history.append({"role": "user", "content": text})
 
-    # 3) AI 응답 (conv.id 전달!)
-    assistant_text = ai_reply(text, history, conv.id)
+    # 3) AI 응답 (✅ user.id도 전달!)
+    assistant_text = ai_reply(text, history, conv.id, request.user.id)
 
     # 4) 어시스턴트 메시지 저장
     Message.objects.create(conversation=conv, role="assistant", content=assistant_text)
