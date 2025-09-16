@@ -1,9 +1,9 @@
 <!doctype html>
 <html lang="ko">
 <head>
-  <meta charset="utf-8">
+  <meta charset="utf-8" />
   <title>회원가입</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
 
   <style>
     html, body { height:100%; }
@@ -28,47 +28,68 @@
       box-shadow:0 10px 30px rgba(0,0,0,.08);
       padding:28px;
     }
-    .signup-card h2 {
-      margin:0 0 18px;
-      font-size:1.4rem;
-    }
+    .signup-card h2 { margin:0 0 18px; font-size:1.4rem; }
     .errorlist { color:#dc2626; margin-bottom:10px; }
-    .row { margin-bottom:14px; }
     label { display:block; margin-bottom:6px; font-size:.95rem; }
     input[type="text"], input[type="password"], input[type="email"] {
-      width:100%;
-      padding:10px 12px;
-      border:1px solid #d1d5db;
-      border-radius:10px;
-      outline:none;
-      background:#fff;
+      width:100%; padding:10px 12px; border:1px solid #d1d5db; border-radius:10px; outline:none; background:#fff;
     }
-    input:focus {
-      border-color:#4f46e5;
-      box-shadow:0 0 0 3px rgba(79,70,229,.15);
-    }
+    input:focus { border-color:#4f46e5; box-shadow:0 0 0 3px rgba(79,70,229,.15); }
     button {
-      width:100%;
-      padding:10px 14px;
-      border:0;
-      border-radius:10px;
-      background:#4f46e5;
-      color:#fff;
-      font-weight:600;
-      cursor:pointer;
+      width:100%; padding:10px 14px; border:0; border-radius:10px; background:#4f46e5; color:#fff; font-weight:600; cursor:pointer;
     }
-    .links {
-      margin-top:12px;
-      font-size:.9rem;
-      text-align:center;
+    .links { margin-top:12px; font-size:.9rem; text-align:center; }
+    .links a { color:#4f46e5; text-decoration:none; }
+
+    /* 공통 helptext (username 포함) */
+    .helptext, *[id$="_helptext"] {
+      font-size: 0.8rem !important;
+      color: #6b7280 !important;
+      line-height: 1.4 !important;
+      margin: 6px 0 !important;
     }
-    .links a {
-      color:#4f46e5;
-      text-decoration:none;
+    .helptext li, *[id$="_helptext"] li { margin-bottom:4px !important; }
+
+    /* ===========================
+       비밀번호 전용(ul/div/small/span 어떤 태그든)
+       - 컨테이너가 #id_password1 / #id_password2 를 "포함하면"
+         그 안의 안내문구 전부 스타일 강제
+       =========================== */
+    p:has(#id_password1) ul,
+    p:has(#id_password1) ol,
+    p:has(#id_password1) div,
+    p:has(#id_password1) small,
+    p:has(#id_password1) span,
+    div:has(#id_password1) ul,
+    div:has(#id_password1) ol,
+    div:has(#id_password1) div,
+    div:has(#id_password1) small,
+    div:has(#id_password1) span,
+    p:has(#id_password2) ul,
+    p:has(#id_password2) ol,
+    p:has(#id_password2) div,
+    p:has(#id_password2) small,
+    p:has(#id_password2) span,
+    div:has(#id_password2) ul,
+    div:has(#id_password2) ol,
+    div:has(#id_password2) div,
+    div:has(#id_password2) small,
+    div:has(#id_password2) span {
+      font-size: 0.8rem !important;
+      color: #6b7280 !important;
+      line-height: 1.4 !important;
+      margin: 6px 0 !important;
+    }
+    p:has(#id_password1) li,
+    div:has(#id_password1) li,
+    p:has(#id_password2) li,
+    div:has(#id_password2) li {
+      font-size: 0.8rem !important;
+      color: #6b7280 !important;
+      margin-bottom:4px !important;
     }
   </style>
 </head>
-
 <body>
   <div class="page-center">
     <div class="signup-card">
