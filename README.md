@@ -81,7 +81,8 @@
 
 ### 시스템 흐름도
 
-![[Pasted image 20250916122906.png]]
+<img width="1310" height="758" alt="image" src="https://github.com/user-attachments/assets/51f680ab-6570-4a9f-ad6a-f2719a444ce7" />
+
 
 
 **웹 페이지 동작 
@@ -89,14 +90,17 @@
 
 
 **chat bot api 작동 방식** 
-![[Pasted image 20250916123538.png]]
+<img width="1155" height="693" alt="image" src="https://github.com/user-attachments/assets/45b7c6f8-1d20-4f85-9723-213eb0c61cb6" />
+
 
 **벡터 DB 상호 작용**
 
-![[Pasted image 20250916123557.png]]
+<img width="1651" height="782" alt="image" src="https://github.com/user-attachments/assets/3e2dcd10-3b14-4463-9509-d35b674a7d7c" />
+
 
 ### ERD
-![[Pasted image 20250916123647.png]]
+<img width="975" height="757" alt="image" src="https://github.com/user-attachments/assets/3ff3ed70-5e88-440b-8ea1-d2d5ed315faf" />
+
 
 ### **auth_user**
 
