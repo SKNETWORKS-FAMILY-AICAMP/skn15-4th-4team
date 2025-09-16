@@ -11,6 +11,7 @@ urlpatterns = [
     path("logout/", views.force_logout, name="logout"),
     path("accounts/signup/", views.signup, name="signup"),  # ← 추가
     path("upload-file/", views.api_upload_file, name="upload_file"),
+    path('c/<int:pk>/delete/', views.delete_conversation, name='delete'),
 
 ]
 

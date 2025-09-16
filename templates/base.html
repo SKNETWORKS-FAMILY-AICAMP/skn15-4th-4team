@@ -26,6 +26,12 @@
       <div class="mb-2">
         <h5 class="m-0">{{ request.user.username }}님의 대화</h5>
       </div>
+      <div class="d-grid my-3">
+        <a href="{% url 'note:mine' %}" class="btn btn-outline-secondary btn-sm">
+          <i class="bi bi-journal-text"></i> 내 Q&A
+        </a>
+      </div>
+      
 
       <!-- [B] 새 채팅 버튼 -->
       <!--  - { % url 'chat:new' % } → urls.py의 name="new"로 라우팅
@@ -49,17 +55,25 @@
               - { % url 'chat:room' pk=c.pk % } : 대화방 상세 페이지로 이동 -->
       <ul class="list-unstyled vstack gap-2">
         {% if request.user.is_authenticated %}
-          <!-- [변경] 로그인한 사용자로 강제 스코프 다운: 
-               이 블록 내부에서는 conversations를 request.user.conversations.all 로 덮어써 
-               "계정 ID 기반" 목록만 보이게 함. Conversation.Meta.ordering으로 최신순 정렬 유지 -->
+          {# 로그인 사용자의 대화만 스코프 다운 #}
           {% with conversations=request.user.conversations.all %}
             {% for c in conversations %}
               <li>
                 <a class="link-body-emphasis text-decoration-none" href="{% url 'chat:room' pk=c.pk %}">
                   {{ c.title|default:"(제목 없음)" }}
                 </a>
-                <div class="small text-muted">
-                  {{ c.updated_at|date:"Y-m-d H:i" }}
+                <div class="small d-flex align-items-center gap-2 text-muted">
+                  <span>{{ c.updated_at|date:"Y-m-d H:i" }}</span>
+                  <form action="{% url 'chat:delete' pk=c.pk %}" method="post"
+                        class="d-inline m-0"
+                        onsubmit="return confirm('이 대화를 정말 삭제할까요? 복구할 수 없습니다.');">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-outline-danger btn-sm py-0">
+                      <i class="bi bi-trash"></i> 삭제
+                    </button>
+                  </form>
+                  {# 대안: 쿼리스트링 방식 #}
+                  {# <a class="btn btn-outline-secondary btn-sm py-0" href="{% url 'note:index' %}?conv={{ c.pk }}">Q&A</a> #}
                 </div>
               </li>
             {% empty %}
@@ -67,9 +81,9 @@
             {% endfor %}
           {% endwith %}
         {% else %}
-          <!-- [추가] 비로그인 상태 안내 -->
           <li class="text-muted">로그인 후 대화를 볼 수 있습니다.</li>
         {% endif %}
+            
       </ul>
 
 

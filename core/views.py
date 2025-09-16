@@ -12,6 +12,19 @@ import requests
 
 @login_required
 @require_POST
+
+def delete_conversation(request, pk):
+    # 자신의 대화만 삭제 가능하도록 소유자 체크
+    conv = get_object_or_404(Conversation, pk=pk, user=request.user)
+    conv.delete()  # Message가 FK CASCADE면 함께 삭제됨
+
+    # [변경] 삭제 후 현재 페이지(Referer)로 돌아가기
+    next_url = request.META.get('HTTP_REFERER')  # 이전 페이지 URL
+    if not next_url:
+        # Referer가 없으면 안전한 기본값으로 이동
+        next_url = redirect('chat:index').url
+    return redirect(next_url)
+
 def api_upload_file(request):
     """
     파일 업로드 → FastAPI /upload-doc 호출 → 결과 반환

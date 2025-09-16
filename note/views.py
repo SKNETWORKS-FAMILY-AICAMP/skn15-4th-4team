@@ -96,3 +96,4 @@ class MyQABoardView(LoginRequiredMixin, QABoardView):
         items = pair_user_assistant(qs)
         items.sort(key=lambda x: (x.created_at, x.user_msg_id), reverse=True)
         return items
+    
