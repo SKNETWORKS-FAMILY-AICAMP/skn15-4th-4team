@@ -85,8 +85,8 @@
 
 
 
-**웹 페이지 동작 
-![[Pasted image 20250916115055.png]]
+**웹 페이지 동작** 
+<img width="1382" height="532" alt="image" src="https://github.com/user-attachments/assets/9994dca4-2826-476e-8e2a-e1461156153e" />
 
 
 **chat bot api 작동 방식** 
