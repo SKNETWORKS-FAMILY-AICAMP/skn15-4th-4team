@@ -3,7 +3,7 @@
 
 {% block content %}
 
-<!-- 상단 질문/안내 카드 영역 -->
+<!-- 상단 영역 -->
 <div class="row g-3 mb-3">
   <div class="col-12">
     <div class="d-flex align-items-center gap-2">
@@ -12,9 +12,9 @@
       </a>
       <a href="{% url 'chat:index' %}" class="btn btn-link p-0"><i class="bi bi-arrow-left"></i> 목록</a>
       <div class="ms-auto d-flex align-items-center gap-2">
-        <!-- ✅ 업로드 확인 버튼 (오른쪽 상단) -->
+        <!-- 업로드 확인 버튼 -->
         <button id="checkBtn" class="btn btn-outline-success btn-sm">업로드 확인</button>
-        <!-- 로그아웃: POST 전용 -->
+        <!-- 로그아웃 -->
         <form action="{% url 'chat:logout' %}" method="post" class="d-inline m-0">
           {% csrf_token %}
           <button type="submit" class="btn btn-outline-secondary btn-sm">로그아웃</button>
@@ -24,7 +24,7 @@
   </div>
 </div>
 
-<!-- 실제 채팅 메시지 -->
+<!-- 메시지 영역 -->
 <div class="vstack gap-2 mb-5" id="messages">
   {% for m in messages %}
     {% if m.role == "user" %}
@@ -37,41 +37,69 @@
   {% endfor %}
 </div>
 
-<!-- 하단 입력 바 -->
-<form id="send-form" class="chat-input-bar mb-2">
-  <input type="hidden" name="conversation_id" value="{{ conv.id }}">
-  <div class="input-group shadow">
-    <span class="input-group-text bg-body"><i class="bi bi-chat-right-dots"></i></span>
-    <input name="text" id="text" class="form-control" placeholder="무엇이든 물어보세요. (예: 'SQLD 공부법', '고양이 상식' 등)" autofocus>
-    <button class="btn btn-primary" type="submit"><i class="bi bi-send"></i></button>
-  </div>
-</form>
+<!-- 하단 입력/업로드 바 (고정) -->
+<div id="chat-footer" class="chat-footer bg-white border-top p-2">
+  <!-- 채팅 입력 -->
+  <form id="send-form" class="chat-input-bar mb-2">
+    <input type="hidden" name="conversation_id" value="{{ conv.id }}">
+    <div class="input-group shadow">
+      <span class="input-group-text bg-body"><i class="bi bi-chat-right-dots"></i></span>
+      <textarea name="text" id="text" class="form-control"
+                placeholder="anki 저장 / 웹 검색 / 문서 검색 원하는 방식에 따라서 질문해주세요."
+                rows="2"></textarea>
+      <button class="btn btn-primary" type="submit"><i class="bi bi-send"></i></button>
+    </div>
+  </form>
 
-<!-- ✅ 채팅 입력바 아래에 파일 업로드 -->
-<form id="upload-form" enctype="multipart/form-data" class="d-flex align-items-center gap-2">
-  {% csrf_token %}
-  <input type="file" id="fileInput" name="file" class="form-control form-control-sm" style="max-width:300px;">
-  <button type="button" id="uploadBtn" class="btn btn-outline-primary btn-sm">
-    <i class="bi bi-upload"></i> 업로드
-  </button>
-</form>
-
-<div id="uploadResult" class="small text-muted mt-2"></div>
+  <!-- 파일 업로드 -->
+  <form id="upload-form" enctype="multipart/form-data"
+        class="d-flex align-items-center gap-2">
+    {% csrf_token %}
+    <input type="file" id="fileInput" name="file" class="form-control form-control-sm"
+           style="max-width:300px;">
+    <button type="button" id="uploadBtn" class="btn btn-outline-primary btn-sm">
+      <i class="bi bi-upload"></i> 업로드
+    </button>
+  </form>
+  <div id="uploadResult" class="small text-muted mt-2"></div>
+</div>
 
 {% endblock %}
 
 {% block script %}
+<style>
+  .chat-footer {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 1030;
+  }
+  #messages {
+    margin-bottom: 180px; /* footer 높이만큼 여백 확보 */
+  }
+</style>
+
 <script>
-  // --- CSRF 토큰 가져오기
+  // CSRF 토큰 가져오기
   function getCookie(name) {
     const v = document.cookie.match('(^|;)\\s*' + name + '\\s*=\\s*([^;]+)');
     return v ? v.pop() : '';
   }
   const CSRF = getCookie('csrftoken');
 
-  // --- 채팅 전송 처리 (기존 코드 그대로)
   const form = document.getElementById('send-form');
   const box = document.getElementById('messages');
+
+  // Enter = 전송, Shift+Enter = 줄바꿈
+  document.getElementById("text").addEventListener("keydown", function(e) {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      form.dispatchEvent(new Event("submit"));
+    }
+  });
+
+  // 채팅 전송
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
     const fd = new FormData(form);
@@ -101,17 +129,17 @@
     }
   });
 
-  // --- 파일 업로드 처리
+  // 파일 업로드
   document.getElementById("uploadBtn").addEventListener("click", async () => {
     const fileInput = document.getElementById("fileInput");
     if (!fileInput.files.length) {
       alert("파일을 선택하세요!");
       return;
     }
-      const fd = new FormData();
-      fd.append("file", fileInput.files[0]);
-      fd.append("session_id", "user-{{ request.user.id }}");
-      fd.append("conversation_id", "{{ conv.id }}");   // ✅ 이 줄 추가
+    const fd = new FormData();
+    fd.append("file", fileInput.files[0]);
+    fd.append("session_id", "user-{{ request.user.id }}");
+    fd.append("conversation_id", "{{ conv.id }}");
 
     try {
       const res = await fetch("/upload-file/", {
@@ -122,8 +150,7 @@
       const data = await res.json();
       document.getElementById("uploadResult").innerText = JSON.stringify(data, null, 2);
 
-      // ✅ 대화창(messages)에도 업로드 사실 기록
-      const box = document.getElementById("messages");
+      // 대화창에 업로드 사실 기록
       if (data.ok) {
         box.insertAdjacentHTML("beforeend",
           `<div class="chat-bubble system small">📁 '${fileInput.files[0].name}' 파일을 업로드했습니다.</div>`
@@ -134,13 +161,12 @@
         );
       }
       window.scrollTo({top: document.body.scrollHeight, behavior: "smooth"});
-
     } catch (err) {
       document.getElementById("uploadResult").innerText = "에러 발생: " + err;
     }
   });
 
-  // --- 업로드 확인 버튼
+  // 업로드 확인 버튼
   document.getElementById("checkBtn").addEventListener("click", () => {
     alert("업로드 결과는 입력창 아래에 표시됩니다!");
   });
