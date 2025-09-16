@@ -106,9 +106,9 @@
 
 사용자 정보를 저장하는 테이블. Django 기본 User 모델과 매핑됩니다.
 
-- `id` (int, PK): 사용자 고유 ID
+**- `id` (int, PK): 사용자 고유 ID
     
-- `password` (varchar): 비밀번호
+- `password` (varchar): 비밀번호**
     
 - `last_login` (datetime): 마지막 로그인 시간
     
