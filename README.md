@@ -5,7 +5,7 @@
 
 | 이름              | 직책                    | -                                                                                                                                  |
 | --------------- | --------------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
-| 최민석 @Minsuk1014 | 팀장, Chat bot API 관리   | <img width="102" height="116" alt="image" src="https://github.com/user-attachments/assets/0f7ec347-9f05-4747-878b-ae4db82ad4fa" /> |
+| 최민석 @Minsuk1014 | 팀장, REST API 제작, 벡터 DB 관리| <img width="102" height="116" alt="image" src="https://github.com/user-attachments/assets/0f7ec347-9f05-4747-878b-ae4db82ad4fa" /> |
 | 김민규 @kmklifegk  | UI 총괄                 | <img width="102" height="116" alt="image" src="https://github.com/user-attachments/assets/4dac5983-f9d7-4bcf-bf9f-56aca4445042" /> |
 | 김주형 @wugud09    | Chat bot API 관리 및 연결  | <img width="102" height="116" alt="image" src="https://github.com/user-attachments/assets/4dac5983-f9d7-4bcf-bf9f-56aca4445042" /> |
 | 강민정 @kmj212936  | 깃 허브 관리, django DB 구현 | <img width="102" height="116" alt="image" src="https://github.com/user-attachments/assets/d37f032d-a391-4ee7-a640-a42411291697" /> |
